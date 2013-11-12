@@ -10,143 +10,173 @@
 #import "PNColor.h"
 #import "PNChartLabel.h"
 
+NSInteger const kChartMargin = 10;
+NSInteger const kXLabelMargin = 15;
+NSInteger const kYLabelMargin = 15;
+NSInteger const kYLabelHeight = 11;
+
+@interface PNLineChart()
+
+@property (nonatomic) NSArray *xLabels;
+@property (nonatomic) NSArray *yLabels;
+@property (nonatomic) NSArray *yValues;
+@property (nonatomic) CGFloat xLabelWidth;
+@property (nonatomic) int yValueMax;
+@property (nonatomic) CAShapeLayer *chartLine;
+
+@end
+
 @implementation PNLineChart
+
+#pragma mark - Properties
+
+@synthesize xLabels = _xLabels;
+@synthesize yLabels = _yLabels;
+@synthesize yValues = _yValues;
+@synthesize yValueMax = _yValueMax;
+@synthesize chartLine = _chartLine;
+@synthesize strokeColor = _strokeColor;
+
+#pragma mark - Initialization
 
 - (id)initWithFrame:(CGRect)frame
 {
     self = [super initWithFrame:frame];
     if (self) {
-        // Initialization code
         self.backgroundColor = [UIColor whiteColor];
         self.clipsToBounds = YES;
-		_chartLine = [CAShapeLayer layer];
-		_chartLine.lineCap = kCALineCapRound;
-		_chartLine.lineJoin = kCALineJoinBevel;
-		_chartLine.fillColor   = [[UIColor whiteColor] CGColor];
-		_chartLine.lineWidth   = 3.0;
-		_chartLine.strokeEnd   = 0.0;
-		[self.layer addSublayer:_chartLine];
     }
-    
     return self;
 }
 
--(void)setYValues:(NSArray *)yValues
+#pragma mark - Start setup chart
+
+- (void)drawLineChartWithxLabels:(NSArray *)xLabels
+                         yValues:(NSArray *)yValues
 {
-    _yValues = yValues;
-    [self setYLabels:yValues];
+//    X
+    [self setXLabels:xLabels];
+    [self setupXLabel];
+    
+//    Y
+    [self setYValues:yValues];
+    [self setYLabels:self.yValues];
+    [self setupYLabel];
+    
+    [self setNeedsDisplay];
 }
 
--(void)setYLabels:(NSArray *)yLabels
-{
-    NSInteger max = 0;
-    for (NSString * valueString in yLabels) {
-        NSInteger value = [valueString integerValue];
-        if (value > max) {
-            max = value;
-        }
-        
-    }
-    
-    //Min value for Y label
-    if (max < 5) {
-        max = 5;
-    }
-    
-    _yValueMax = (int)max;
-    
-    float level = max /5.0;
-	
-    NSInteger index = 0;
-	NSInteger num = [yLabels count] + 1;
-	while (num > 0) {
-		CGFloat chartCavanHeight = self.frame.size.height - chartMargin * 2 - 40.0 ;
-		CGFloat levelHeight = chartCavanHeight /5.0;
-		PNChartLabel * label = [[PNChartLabel alloc] initWithFrame:CGRectMake(0.0,chartCavanHeight - index * levelHeight + (levelHeight - yLabelHeight) , 20.0, yLabelHeight)];
-		[label setTextAlignment:NSTextAlignmentRight];
-		label.text = [NSString stringWithFormat:@"%1.f",level * index];
-		[self addSubview:label];
-        index +=1 ;
-		num -= 1;
-	}
+#pragma mark - Setup UI
 
-}
-
--(void)setXLabels:(NSArray *)xLabels
+- (void)setupXLabel
 {
-    _xLabels = xLabels;
-    _xLabelWidth = (self.frame.size.width - chartMargin - 30.0 - ([xLabels count] -1) * xLabelMargin)/5.0;
+    int nbXLabel = [self.xLabels count];
+    self.xLabelWidth = (self.frame.size.width - kChartMargin - 30.0 - (nbXLabel - 1) * kXLabelMargin) / nbXLabel;
     
-    for (NSString * labelText in xLabels) {
-        NSInteger index = [xLabels indexOfObject:labelText];
-        PNChartLabel * label = [[PNChartLabel alloc] initWithFrame:CGRectMake(index * (xLabelMargin + _xLabelWidth) + 30.0, self.frame.size.height - 30.0, _xLabelWidth, 20.0)];
+    for (NSString *labelText in self.xLabels) {
+        NSInteger i = [self.xLabels indexOfObject:labelText];
+        PNChartLabel *label = [[PNChartLabel alloc]
+                               initWithFrame:CGRectMake(i * (kXLabelMargin + self.xLabelWidth) + 30.0,
+                                                        self.frame.size.height - 30.0,
+                                                        self.xLabelWidth,
+                                                        20.0)];
         [label setTextAlignment:NSTextAlignmentCenter];
         label.text = labelText;
         [self addSubview:label];
     }
-    
 }
 
--(void)setStrokeColor:(UIColor *)strokeColor
+- (void)setupYLabel
 {
-	_strokeColor = strokeColor;
-	_chartLine.strokeColor = [strokeColor CGColor];
-}
-
--(void)strokeChart
-{
-    
-    UIBezierPath *progressline = [UIBezierPath bezierPath];
-    
-    CGFloat firstValue = [[_yValues objectAtIndex:0] floatValue];
-    
-    CGFloat xPosition = (xLabelMargin + _xLabelWidth)   ;
-    
-    CGFloat chartCavanHeight = self.frame.size.height - chartMargin * 2 - 40.0;
-    
-    float grade = (float)firstValue / (float)_yValueMax;
-    [progressline moveToPoint:CGPointMake( xPosition, chartCavanHeight - grade * chartCavanHeight + 20.0)];
-    [progressline setLineWidth:3.0];
-    [progressline setLineCapStyle:kCGLineCapRound];
-    [progressline setLineJoinStyle:kCGLineJoinRound];
-    NSInteger index = 0;
-    for (NSString * valueString in _yValues) {
-        NSInteger value = [valueString integerValue];
-        
-        float grade = (float)value / (float)_yValueMax;
-        if (index != 0) {
-            
-            [progressline addLineToPoint:CGPointMake(index * xPosition  + 30.0+ _xLabelWidth /2.0, chartCavanHeight - grade * chartCavanHeight + 20.0)];
-            
-            [progressline moveToPoint:CGPointMake(index * xPosition + 30.0 + _xLabelWidth /2.0, chartCavanHeight - grade * chartCavanHeight + 20.0 )];
-            
-            [progressline stroke];
-        }
-        
-        index += 1;
+    self.yValueMax = 0;
+    for (NSString *valueString in self.yLabels) {
+        int value = [valueString intValue];
+        if (value > self.yValueMax) { self.yValueMax = value; }
     }
     
-    _chartLine.path = progressline.CGPath;
-	if (_strokeColor) {
-		_chartLine.strokeColor = [_strokeColor CGColor];
-	}else{
-		_chartLine.strokeColor = [PNGreen CGColor];
+//    min value for Y label
+    if (self.yValueMax < 5) { self.yValueMax = 5; }
+    
+    float level = self.yValueMax / [self.yValues count];
+	
+    int index = 0;
+	int num = [self.yLabels count] + 1;
+	while (num > 0) {
+		CGFloat chartCavanHeight = self.frame.size.height - kChartMargin * 2 - 40.0 ;
+		CGFloat levelHeight = chartCavanHeight / 5.0;
+		PNChartLabel *label = [[PNChartLabel alloc]
+                               initWithFrame:CGRectMake(0.0,
+                                                        chartCavanHeight - index * levelHeight + (levelHeight - kYLabelHeight),
+                                                        20.0,
+                                                        kYLabelHeight)];
+		[label setTextAlignment:NSTextAlignmentRight];
+		label.text = [NSString stringWithFormat:@"%1.f", level * index];
+		
+        [self addSubview:label];
+        
+        index += 1;
+		num -= 1;
 	}
-    
-    
-    CABasicAnimation *pathAnimation = [CABasicAnimation animationWithKeyPath:@"strokeEnd"];
-    pathAnimation.duration = 1.0;
-    pathAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
-    pathAnimation.fromValue = [NSNumber numberWithFloat:0.0f];
-    pathAnimation.toValue = [NSNumber numberWithFloat:1.0f];
-    pathAnimation.autoreverses = NO;
-    [_chartLine addAnimation:pathAnimation forKey:@"strokeEndAnimation"];
-    
-    _chartLine.strokeEnd = 1.0;
-    
-    
 }
 
+#pragma mark - Drawing
 
+- (void)drawRect:(CGRect)rect
+{
+    self.chartLine = [CAShapeLayer layer];
+    self.chartLine.lineCap = kCALineCapRound;
+    self.chartLine.lineJoin = kCALineJoinBevel;
+    self.chartLine.fillColor = [[UIColor whiteColor] CGColor];
+    self.chartLine.lineWidth = 3.0;
+    self.chartLine.strokeEnd = 0.0;
+    if (self.strokeColor) {
+        self.chartLine.strokeColor = [self.strokeColor CGColor];
+    } else {
+        self.chartLine.strokeColor = [PNGreen CGColor];
+    }
+    
+    [self.layer addSublayer:self.chartLine];
+
+    if ([self.yValues count] > 0) {
+        UIBezierPath *progressline = [UIBezierPath bezierPath];
+        CGFloat firstValue = [[self.yValues objectAtIndex:0] floatValue];
+        CGFloat xPosition = (kXLabelMargin + self.xLabelWidth);
+        CGFloat chartCavanHeight = self.frame.size.height - kChartMargin * 2 - 40.0;
+        
+        float grade = (float)firstValue / (float)self.yValueMax;
+        [progressline moveToPoint:CGPointMake(xPosition, chartCavanHeight - grade * chartCavanHeight + 20.0)];
+        [progressline setLineWidth:3.0];
+        [progressline setLineCapStyle:kCGLineCapRound];
+        [progressline setLineJoinStyle:kCGLineJoinRound];
+        
+        int index = 0;
+        for (NSString *valueString in self.yValues) {
+            int value = [valueString intValue];
+            float grade = (float)value / (float)self.yValueMax;
+            
+            if (index != 0) {
+                [progressline addLineToPoint:CGPointMake(index * xPosition + 30.0 + self.xLabelWidth / 2.0,
+                                                         chartCavanHeight - grade * chartCavanHeight + 20.0)];
+                [progressline moveToPoint:CGPointMake(index * xPosition + 30.0 + self.xLabelWidth / 2.0,
+                                                      chartCavanHeight - grade * chartCavanHeight + 20.0 )];
+                [progressline stroke];
+            }
+            
+            index += 1;
+        }
+        
+        self.chartLine.path = progressline.CGPath;
+        
+        CABasicAnimation *pathAnimation = [CABasicAnimation animationWithKeyPath:@"strokeEnd"];
+        pathAnimation.duration = 1.0;
+        pathAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+        pathAnimation.fromValue = [NSNumber numberWithFloat:0.0f];
+        pathAnimation.toValue = [NSNumber numberWithFloat:1.0f];
+        pathAnimation.autoreverses = NO;
+        [self.chartLine addAnimation:pathAnimation forKey:@"strokeEndAnimation"];
+        
+        self.chartLine.strokeEnd = 1.0;
+    }
+}
 
 @end

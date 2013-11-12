@@ -10,32 +10,16 @@
 #import <UIKit/UIKit.h>
 #import <QuartzCore/QuartzCore.h>
 
-#define chartMargin     10
-#define xLabelMargin    15
-#define yLabelMargin    15
-#define yLabelHeight    11
+extern NSInteger const kChartMargin;
+extern NSInteger const kXLabelMargin;
+extern NSInteger const kYLabelMargin;
+extern NSInteger const kYLabelHeight;
 
 @interface PNLineChart : UIView
 
-/**
- * This method will call and troke the line in animation
- */
+@property (nonatomic) UIColor *strokeColor;
 
--(void)strokeChart;
-
-@property (strong, nonatomic) NSArray * xLabels;
-
-@property (strong, nonatomic) NSArray * yLabels;
-
-@property (strong, nonatomic) NSArray * yValues;
-
-@property (nonatomic) CGFloat xLabelWidth;
-
-@property (nonatomic) int yValueMax;
-
-@property (nonatomic,strong) CAShapeLayer * chartLine;
-
-@property (nonatomic, strong) UIColor * strokeColor;
-
+- (void)drawLineChartWithxLabels:(NSArray *)xLabels
+                         yValues:(NSArray *)yValues;
 
 @end
