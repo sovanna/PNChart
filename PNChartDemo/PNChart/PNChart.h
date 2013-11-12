@@ -18,50 +18,39 @@ typedef enum {
 	PNLineType,
 	/** Bar chart style with bar background color  */
 	PNBarType
-	
 } PNChartType;
 
 
 @interface PNChart : UIView
 
 /**
- * This method will call and troke the line in animation.
- */
-
--(void)strokeChart;
-
-/**
  * X Labels will show on chart.
- *
  */
-
-@property (strong, nonatomic) NSArray * xLabels;
+@property (strong, nonatomic) NSArray *xLabels;
 
 /**
  * Y value for X label, Chart will generate the Y label by it self.
- *
  */
+@property (strong, nonatomic) NSArray *yValues;
 
-@property (strong, nonatomic) NSArray * yValues;
-
-@property (strong, nonatomic) PNLineChart * lineChart;
-
-@property (strong, nonatomic) PNBarChart * barChart;
+@property (strong, nonatomic) PNLineChart *lineChart;
+@property (strong, nonatomic) PNBarChart *barChart;
 
 /**
  * PNChart chart type. The default is PNLineChart.
  *
  * @see PNChartType
  */
-
 @property (assign) PNChartType type;
 
 /**
  * PNChart chart stroke color. The default is PNGreen.
- *
  */
-
 @property (nonatomic, strong) UIColor * strokeColor;
 
+/**
+ * This method will call and troke the line in animation.
+ */
+- (void)strokeChart;
 
 @end

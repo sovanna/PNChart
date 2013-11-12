@@ -10,6 +10,13 @@
 
 @implementation PNChart
 
+@synthesize xLabels = _xLabels;
+@synthesize yValues = _yValues;
+@synthesize lineChart = _lineChart;
+@synthesize barChart = _barChart;
+@synthesize type = _type;
+@synthesize strokeColor = _strokeColor;
+
 - (id)initWithFrame:(CGRect)frame
 {
     self = [super initWithFrame:frame];
@@ -23,35 +30,33 @@
     return self;
 }
 
--(void)setUpChart{
+- (void)setUpChart{
 	if (self.type == PNLineType) {
-		_lineChart = [[PNLineChart alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height)];
-		_lineChart.backgroundColor = [UIColor clearColor];
-		[self addSubview:_lineChart];
-		[_lineChart setYValues:_yValues];
-		[_lineChart setXLabels:_xLabels];
-		[_lineChart setStrokeColor:_strokeColor];
-		[_lineChart strokeChart];
-
-	}else if (self.type == PNBarType)
-	{
-		_barChart = [[PNBarChart alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height)];
-		_barChart.backgroundColor = [UIColor clearColor];
-		[self addSubview:_barChart];
-		[_barChart setYValues:_yValues];
-		[_barChart setXLabels:_xLabels];
-		[_barChart setStrokeColor:_strokeColor];
-		[_barChart strokeChart];
-
+		self.lineChart = [[PNLineChart alloc]
+                          initWithFrame:CGRectMake(0, 0,
+                                                   self.frame.size.width,
+                                                   self.frame.size.height)];
+        [self.lineChart drawLineChartWithxLabels:self.xLabels yValues:self.yValues];
+        [self.lineChart setBackgroundColor:[UIColor clearColor]];
+        [self.lineChart setStrokeColor:self.strokeColor];
+		[self addSubview:self.lineChart];
+	} else if (self.type == PNBarType) {
+		self.barChart = [[PNBarChart alloc]
+                         initWithFrame:CGRectMake(0, 0,
+                                                  self.frame.size.width,
+                                                  self.frame.size.height)];
+		self.barChart.backgroundColor = [UIColor clearColor];
+		[self addSubview:self.barChart];
+		[self.barChart setYValues:self.yValues];
+		[self.barChart setXLabels:self.xLabels];
+		[self.barChart setStrokeColor:self.strokeColor];
+		[self.barChart strokeChart];
 	}
 }
 
-
-
--(void)strokeChart
+- (void)strokeChart
 {
 	[self setUpChart];
-	
 }
 
 
