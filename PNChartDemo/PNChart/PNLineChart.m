@@ -102,7 +102,7 @@ NSInteger const kYLabelHeight = 11;
     int index = 0;
 	int num = [self.yLabels count] + 1;
 	while (num > 0) {
-		CGFloat chartCavanHeight = self.frame.size.height - kChartMargin * 2 - 40.0 ;
+		CGFloat chartCavanHeight = self.frame.size.height - kChartMargin * 2 - 40.0;
 		CGFloat levelHeight = chartCavanHeight / 5.0;
 		PNChartLabel *label = [[PNChartLabel alloc]
                                initWithFrame:CGRectMake(0.0,
