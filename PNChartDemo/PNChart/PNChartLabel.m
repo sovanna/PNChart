@@ -17,7 +17,10 @@
     if (self) {
         // Initialization code
         [self setLineBreakMode:NSLineBreakByWordWrapping];
-        [self setMinimumScaleFactor:11.0f];
+        if ([[[UIDevice currentDevice] systemVersion]
+             compare:@"6.0" options:NSNumericSearch] != NSOrderedAscending) {
+            [self setMinimumScaleFactor:11.0f];
+        }
         [self setNumberOfLines:0];
         [self setFont:[UIFont boldSystemFontOfSize:11.0f]];
         [self setTextColor: PNDeepGrey];
